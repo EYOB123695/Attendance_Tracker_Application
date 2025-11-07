@@ -7,7 +7,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(AuthController());
+    final controller = Get.find<AuthController>();   // <-- change this line
 
     return Scaffold(
       body: SafeArea(
