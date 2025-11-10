@@ -12,6 +12,7 @@ class DashboardController extends GetxController {
 
   var weeklyDays = 0.obs;
   var monthlyDays = 0.obs;
+  var totalTimeWorked = '0h 0m'.obs;
   var selectedYear = DateTime.now().year.obs;
   var selectedMonth = DateTime.now().month.obs;
 
@@ -19,6 +20,32 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     updateSummary();
+  }
+
+  Duration _parseDuration(String? durationStr) {
+    if (durationStr == null || durationStr.isEmpty) return Duration.zero;
+    try {
+      // Format: "Xh Ym"
+      final parts = durationStr.split(' ');
+      int hours = 0;
+      int minutes = 0;
+      for (var part in parts) {
+        if (part.endsWith('h')) {
+          hours = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
+        } else if (part.endsWith('m')) {
+          minutes = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
+        }
+      }
+      return Duration(hours: hours, minutes: minutes);
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '${hours}h ${minutes}m';
   }
 
   void updateSummary() {
@@ -42,6 +69,18 @@ class DashboardController extends GetxController {
              d.month == selectedMonth.value &&
              all[date]!.checkOut != null;
     }).length;
+
+    // Total Time Worked (for selected month)
+    Duration totalDuration = Duration.zero;
+    all.entries.forEach((entry) {
+      final d = DateTime.parse(entry.key);
+      if (d.year == selectedYear.value &&
+          d.month == selectedMonth.value &&
+          entry.value.duration != null) {
+        totalDuration += _parseDuration(entry.value.duration);
+      }
+    });
+    totalTimeWorked.value = _formatDuration(totalDuration);
   }
 
   void showFilterDialog(BuildContext context) async {

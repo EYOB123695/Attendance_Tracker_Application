@@ -70,8 +70,22 @@ class HomeView extends StatelessWidget {
 }
 
 // Extracted Home Tab Content (so controller is reused)
-class _HomeContent extends StatelessWidget {
+class _HomeContent extends StatefulWidget {
   const _HomeContent();
+
+  @override
+  State<_HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<_HomeContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh attendance status when this tab becomes visible
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<HomeController>().loadToday();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,18 +105,57 @@ class _HomeContent extends StatelessWidget {
             elevation: 4,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Obx(() => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  Icon(
+                    controller.isCheckedIn.value 
+                        ? Icons.check_circle 
+                        : controller.checkOutTime.isNotEmpty 
+                            ? Icons.check_circle_outline 
+                            : Icons.radio_button_unchecked,
+                    size: 48,
+                    color: controller.isCheckedIn.value 
+                        ? Colors.green 
+                        : controller.checkOutTime.isNotEmpty 
+                            ? Colors.blue 
+                            : Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     controller.status.value,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 16),
                   if (controller.checkInTime.isNotEmpty)
-                    Text('Check-in: ${controller.checkInTime.value}', style: const TextStyle(fontSize: 16)),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.login, size: 18, color: Colors.green),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Check-in: ${controller.checkInTime.value}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (controller.checkOutTime.isNotEmpty)
-                    Text('Check-out: ${controller.checkOutTime.value}', style: const TextStyle(fontSize: 16)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.logout, size: 18, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Check-out: ${controller.checkOutTime.value}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
                 ],
               )),
             ),

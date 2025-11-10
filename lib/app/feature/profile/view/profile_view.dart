@@ -10,35 +10,104 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
-    final user = Get.find<AuthController>().currentUser.value!;
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // User Info
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(user.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(user.email),
-              ),
-            ),
-            const SizedBox(height: 20),
+      body: Obx(() {
+        final user = authController.currentUser.value;
+        if (user == null) {
+          return const Center(child: Text('No user data available'));
+        }
 
-            // Theme Toggle
-            Card(
-              child: SwitchListTile(
-                title: const Text('Dark Mode'),
-                value: controller.isDark.value,
-                onChanged: (_) => controller.toggleTheme(),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // User Info Card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.deepPurple[100],
+                        child: Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.deepPurple[700],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        user.fullName,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.email, size: 16, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(
+                            user.email,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 24),
+
+              // Preferences Section
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Preferences',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Theme Toggle
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Obx(() => ListTile(
+                  leading: Icon(
+                    controller.isDark.value ? Icons.dark_mode : Icons.light_mode,
+                    color: Colors.deepPurple,
+                  ),
+                  title: const Text('Dark Mode'),
+                  subtitle: const Text('Toggle between light and dark theme'),
+                  trailing: Switch(
+                    value: controller.isDark.value,
+                    onChanged: (_) => controller.toggleTheme(),
+                  ),
+                )),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

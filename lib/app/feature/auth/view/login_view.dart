@@ -38,24 +38,45 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      TextField(
-                        decoration: const InputDecoration(
+                      Obx(() => TextField(
+                        decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
+                          prefixIcon: const Icon(Icons.email),
+                          errorText: controller.emailError.value,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        onChanged: (value) => controller.email.value = value,
-                      ),
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: controller.validateLoginEmail,
+                      )),
                       const SizedBox(height: 16),
-                      TextField(
-                        decoration: const InputDecoration(
+                      Obx(() => TextField(
+                        decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock),
+                          prefixIcon: const Icon(Icons.lock),
+                          errorText: controller.passwordError.value,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         obscureText: true,
-                        onChanged: (value) => controller.password.value = value,
+                        onChanged: controller.validateLoginPassword,
+                      )),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            // Forgot password - optional for future enhancement
+                            Get.snackbar('Info', 'Forgot password feature coming soon',
+                                backgroundColor: Colors.blue, colorText: Colors.white);
+                          },
+                          child: const Text('Forgot Password?'),
+                        ),
                       ),
-                      const SizedBox(height: 24),
-                      SizedBox(
+                      const SizedBox(height: 16),
+                      Obx(() => SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -63,14 +84,17 @@ class LoginView extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            backgroundColor: controller.isLoginValid 
+                                ? Colors.deepPurple 
+                                : Colors.grey,
                           ),
-                          onPressed: controller.login,
+                          onPressed: controller.isLoginValid ? controller.login : null,
                           child: const Text(
                             'Login',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
-                      ),
+                      )),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () => Get.toNamed('/register'),

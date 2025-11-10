@@ -22,22 +22,100 @@ class HistoryView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.records.isEmpty) {
-          return const Center(child: Text('No records for this month'));
+          return const Center(
+            child: Text(
+              'No records for this month',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: controller.records.length,
-          separatorBuilder: (_, __) => const Divider(),
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (_, i) {
             final r = controller.records[i];
+            final isExpanded = controller.expandedIndex.value == i;
             return Card(
-              child: ListTile(
-                title: Text(r['date']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () => controller.toggleExpand(i),
+                borderRadius: BorderRadius.circular(12),
+                child: Column(
                   children: [
-                    Text('In: ${r['checkIn']}'),
-                    Text('Out: ${r['checkOut']}'),
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today, color: Colors.deepPurple),
+                      title: Text(
+                        r['date']!,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.login, size: 16, color: Colors.green),
+                                    const SizedBox(width: 4),
+                                    Text('In: ${r['checkIn']}'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.logout, size: 16, color: Colors.red),
+                                    const SizedBox(width: 4),
+                                    Text('Out: ${r['checkOut']}'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            if (r['duration'] != '-' && r['duration'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.access_time, size: 16, color: Colors.orange),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Duration: ${r['duration']}',
+                                      style: const TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      trailing: Icon(
+                        isExpanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                    ),
+                    if (isExpanded)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Divider(),
+                            _buildDetailRow('Date', r['date']!),
+                            const SizedBox(height: 8),
+                            _buildDetailRow('Check-In Time', r['checkIn']!),
+                            const SizedBox(height: 8),
+                            _buildDetailRow('Check-Out Time', r['checkOut']!),
+                            if (r['duration'] != '-' && r['duration'] != null) ...[
+                              const SizedBox(height: 8),
+                              _buildDetailRow('Total Duration', r['duration']!),
+                            ],
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -45,6 +123,22 @@ class HistoryView extends StatelessWidget {
           },
         );
       }),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }

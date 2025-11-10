@@ -16,10 +16,10 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadToday();
+    loadToday();
   }
 
-  void _loadToday() {
+  void loadToday() {
     final today = service.today;
     final record = service.getAttendance(today);
 

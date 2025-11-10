@@ -35,42 +35,106 @@ class RegisterView extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        TextField(
-                          decoration: const InputDecoration(
+                        Obx(() => TextField(
+                          decoration: InputDecoration(
                             labelText: 'Full Name',
-                            prefixIcon: Icon(Icons.person),
+                            prefixIcon: const Icon(Icons.person),
+                            errorText: controller.fullNameError.value,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          onChanged: (value) => controller.fullName.value = value,
-                        ),
+                          onChanged: controller.validateFullName,
+                        )),
                         const SizedBox(height: 16),
-                        TextField(
-                          decoration: const InputDecoration(
+                        Obx(() => TextField(
+                          decoration: InputDecoration(
                             labelText: 'Email',
-                            prefixIcon: Icon(Icons.email),
+                            prefixIcon: const Icon(Icons.email),
+                            errorText: controller.registerEmailError.value,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           keyboardType: TextInputType.emailAddress,
-                          onChanged: (value) => controller.registerEmail.value = value,
-                        ),
+                          onChanged: controller.validateRegisterEmail,
+                        )),
                         const SizedBox(height: 16),
-                        TextField(
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: Icon(Icons.lock),
-                          ),
-                          obscureText: true,
-                          onChanged: (value) => controller.registerPassword.value = value,
-                        ),
+                        Obx(() => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                prefixIcon: const Icon(Icons.lock),
+                                errorText: controller.registerPasswordError.value,
+                                helperText: controller.registerPassword.value.isEmpty
+                                    ? 'Minimum 6 characters'
+                                    : 'Password strength: ${controller.passwordStrength.value}',
+                                helperMaxLines: 2,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              obscureText: true,
+                              onChanged: controller.validateRegisterPassword,
+                            ),
+                            if (controller.registerPassword.value.isNotEmpty &&
+                                controller.registerPasswordError.value == null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: LinearProgressIndicator(
+                                        value: controller.passwordStrength.value == 'Weak'
+                                            ? 0.33
+                                            : controller.passwordStrength.value == 'Medium'
+                                                ? 0.66
+                                                : 1.0,
+                                        backgroundColor: Colors.grey[300],
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          controller.passwordStrength.value == 'Weak'
+                                              ? Colors.red
+                                              : controller.passwordStrength.value == 'Medium'
+                                                  ? Colors.orange
+                                                  : Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      controller.passwordStrength.value,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: controller.passwordStrength.value == 'Weak'
+                                            ? Colors.red
+                                            : controller.passwordStrength.value == 'Medium'
+                                                ? Colors.orange
+                                                : Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        )),
                         const SizedBox(height: 16),
-                        TextField(
-                          decoration: const InputDecoration(
+                        Obx(() => TextField(
+                          decoration: InputDecoration(
                             labelText: 'Confirm Password',
-                            prefixIcon: Icon(Icons.lock_outline),
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            errorText: controller.confirmPasswordError.value,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           obscureText: true,
-                          onChanged: (value) => controller.confirmPassword.value = value,
-                        ),
+                          onChanged: controller.validateConfirmPassword,
+                        )),
                         const SizedBox(height: 24),
-                        SizedBox(
+                        Obx(() => SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -78,14 +142,19 @@ class RegisterView extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
+                              backgroundColor: controller.isRegisterValid 
+                                  ? Colors.deepPurple 
+                                  : Colors.grey,
                             ),
-                            onPressed: controller.registerUser,
+                            onPressed: controller.isRegisterValid 
+                                ? controller.registerUser 
+                                : null,
                             child: const Text(
                               'Register',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 16, color: Colors.white),
                             ),
                           ),
-                        ),
+                        )),
                         const SizedBox(height: 10),
                         TextButton(
                           onPressed: () => Get.offNamed('/login'),

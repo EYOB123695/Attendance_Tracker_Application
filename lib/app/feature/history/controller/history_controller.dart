@@ -11,11 +11,20 @@ class HistoryController extends GetxController {
   var records = <Map<String, String>>[].obs;
   var selectedYear = DateTime.now().year.obs;
   var selectedMonth = DateTime.now().month.obs;
+  var expandedIndex = Rxn<int>();
 
   @override
   void onInit() {
     super.onInit();
     loadRecords();
+  }
+
+  void toggleExpand(int index) {
+    if (expandedIndex.value == index) {
+      expandedIndex.value = null;
+    } else {
+      expandedIndex.value = index;
+    }
   }
 
   void loadRecords() {
@@ -31,8 +40,10 @@ class HistoryController extends GetxController {
       final m = e.value;
       return {
         'date': DateFormat('MMM dd, yyyy').format(DateTime.parse(e.key)),
+        'dateKey': e.key, // Store original date key for reference
         'checkIn': m.checkIn ?? '-',
         'checkOut': m.checkOut ?? '-',
+        'duration': m.duration ?? '-',
       };
     }).toList();
   }

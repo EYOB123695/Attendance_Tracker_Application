@@ -13,45 +13,192 @@ class DashboardView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Filter Button
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () => controller.showFilterDialog(context),
-                icon: const Icon(Icons.filter_alt),
-                label: Obx(() => Text(
-                  '${DateFormat.MMMM().format(DateTime(controller.selectedYear.value, controller.selectedMonth.value))} ${controller.selectedYear.value}',
-                )),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () => controller.showFilterDialog(context),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.filter_alt, color: Colors.deepPurple),
+                          SizedBox(width: 8),
+                          Text(
+                            'Filter by:',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                      Obx(() => Row(
+                        children: [
+                          Text(
+                            '${DateFormat.MMMM().format(DateTime(controller.selectedYear.value, controller.selectedMonth.value))} ${controller.selectedYear.value}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_drop_down, color: Colors.deepPurple),
+                        ],
+                      )),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             // Weekly Card
             Card(
-              child: ListTile(
-                leading: Icon(Icons.calendar_month, color: Colors.blue),
-                title: const Text('Weekly Attendance'),
-                trailing: Obx(() => Text(
-                  '${controller.weeklyDays.value} days',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                )),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.calendar_month, color: Colors.blue, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Weekly Attendance',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Obx(() => Text(
+                            '${controller.weeklyDays.value} days',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
 
             // Monthly Card
             Card(
-              child: ListTile(
-                leading: const Icon(Icons.calendar_month, color: Colors.green),
-                title: const Text('Monthly Attendance'),
-                trailing: Obx(() => Text(
-                  '${controller.monthlyDays.value} days',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                )),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.calendar_month, color: Colors.green, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Monthly Attendance',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Obx(() => Text(
+                            '${controller.monthlyDays.value} days',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Total Time Worked Card
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.access_time, color: Colors.orange, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Total Time Worked',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Obx(() => Text(
+                            controller.totalTimeWorked.value,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
