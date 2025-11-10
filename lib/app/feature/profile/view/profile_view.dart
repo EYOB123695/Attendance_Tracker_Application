@@ -9,7 +9,8 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProfileController());
+    // Controller is already initialized in HomeView
+    final controller = Get.find<ProfileController>();
     final authController = Get.find<AuthController>();
 
     return Scaffold(

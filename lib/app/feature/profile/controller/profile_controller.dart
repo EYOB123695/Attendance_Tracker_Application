@@ -12,7 +12,8 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadTheme();
+    // Defer theme loading to avoid build-time errors
+    Future.microtask(() => _loadTheme());
   }
 
   SharedPreferences get _prefs => Get.find<SharedPreferences>();
@@ -21,7 +22,10 @@ class ProfileController extends GetxController {
     final savedTheme = _prefs.getBool(_themeKey);
     if (savedTheme != null) {
       isDark.value = savedTheme;
-      Get.changeThemeMode(savedTheme ? ThemeMode.dark : ThemeMode.light);
+      // Use Future.microtask to avoid calling during build
+      Future.microtask(() {
+        Get.changeThemeMode(savedTheme ? ThemeMode.dark : ThemeMode.light);
+      });
     } else {
       // Use system theme if no saved preference
       isDark.value = Get.isDarkMode;
@@ -31,6 +35,9 @@ class ProfileController extends GetxController {
   void toggleTheme() {
     isDark.value = !isDark.value;
     _prefs.setBool(_themeKey, isDark.value);
-    Get.changeThemeMode(isDark.value ? ThemeMode.dark : ThemeMode.light);
+    // Use Future.microtask to avoid calling during build
+    Future.microtask(() {
+      Get.changeThemeMode(isDark.value ? ThemeMode.dark : ThemeMode.light);
+    });
   }
 }

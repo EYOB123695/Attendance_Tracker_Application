@@ -3,12 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/history_controller.dart';
 
-class HistoryView extends StatelessWidget {
+class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
 
   @override
+  State<HistoryView> createState() => _HistoryViewState();
+}
+
+class _HistoryViewState extends State<HistoryView> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh records when this tab becomes visible
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('📜 [HistoryView] Tab became visible, refreshing records...');
+      Get.find<HistoryController>().loadRecords();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HistoryController());
+    // Controller is already initialized in HomeView
+    // Use Get.find() to get existing instance, or create if doesn't exist
+    final controller = Get.find<HistoryController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -21,6 +38,7 @@ class HistoryView extends StatelessWidget {
         ],
       ),
       body: Obx(() {
+        print('🔄 [HistoryView] Obx() rebuilding - Records count: ${controller.records.length}');
         if (controller.records.isEmpty) {
           return const Center(
             child: Text(
@@ -48,9 +66,33 @@ class HistoryView extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.calendar_today, color: Colors.deepPurple),
-                      title: Text(
-                        r['date']!,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      title: Row(
+                        children: [
+                          Text(
+                            r['date']!,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          // Show session number if there are multiple sessions on the same day
+                          if (controller.records.where((rec) => rec['dateKey'] == r['dateKey']).length > 1)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Session ${(int.parse(r['sessionIndex']!) + 1)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 8.0),

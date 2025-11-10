@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import '../../dashboard/view/dashboard_view.dart';
+import '../../dashboard/controller/dashboard_controller.dart';
 import '../../history/view/history_view.dart';
+import '../../history/controller/history_controller.dart';
 import '../../profile/view/profile_view.dart';
+import '../../profile/controller/profile_controller.dart';
 import '../../../feature/auth/controller/auth_controller.dart';
 
 class HomeView extends StatelessWidget {
@@ -20,8 +23,12 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize HomeController only once
-    Get.put(HomeController());
+    // Initialize all controllers when HomeView is created
+    // This ensures they're always available for notifications
+    Get.put(HomeController(), permanent: true);
+    Get.put(DashboardController(), permanent: true);
+    Get.put(HistoryController(), permanent: true);
+    Get.put(ProfileController(), permanent: true);
 
     // Selected tab index
     final selectedIndex = 0.obs;

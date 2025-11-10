@@ -2,8 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
-import 'package:intl/intl.dart';
-
 import '../../../../core/service/attendance_service.dart';
 import '../../../../core/utils/month_year_picker.dart';
 
@@ -19,6 +17,7 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print('📊 [DashboardController] onInit() called - Controller initialized');
     updateSummary();
   }
 
@@ -49,38 +48,63 @@ class DashboardController extends GetxController {
   }
 
   void updateSummary() {
+    print('📊 [DashboardController] updateSummary() called');
     final all = service.getAllAttendance();
+    print('📊 [DashboardController] Retrieved ${all.length} attendance records');
     final now = DateTime.now();
 
-    // Weekly
+    // Weekly - count unique days with at least one completed session
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
     final weekEnd = weekStart.add(const Duration(days: 6));
-    weeklyDays.value = all.keys.where((date) {
-      final d = DateTime.parse(date);
-      return d.isAfter(weekStart.subtract(const Duration(days: 1))) &&
-             d.isBefore(weekEnd.add(const Duration(days: 1))) &&
-             all[date]!.checkOut != null;
-    }).length;
+    final weeklyDaysSet = <String>{};
+    all.entries.forEach((entry) {
+      final d = DateTime.parse(entry.key);
+      if (d.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+          d.isBefore(weekEnd.add(const Duration(days: 1)))) {
+        // Check if this day has at least one completed session
+        final hasCompletedSession = entry.value.sessions
+            .any((s) => s.checkOut != null);
+        if (hasCompletedSession) {
+          weeklyDaysSet.add(entry.key); // Add date key to set (unique days)
+        }
+      }
+    });
+    weeklyDays.value = weeklyDaysSet.length;
 
-    // Monthly (filtered)
-    monthlyDays.value = all.keys.where((date) {
-      final d = DateTime.parse(date);
-      return d.year == selectedYear.value &&
-             d.month == selectedMonth.value &&
-             all[date]!.checkOut != null;
-    }).length;
+    // Monthly - count unique days with at least one completed session
+    final monthlyDaysSet = <String>{};
+    all.entries.forEach((entry) {
+      final d = DateTime.parse(entry.key);
+      if (d.year == selectedYear.value && d.month == selectedMonth.value) {
+        // Check if this day has at least one completed session
+        final hasCompletedSession = entry.value.sessions
+            .any((s) => s.checkOut != null);
+        if (hasCompletedSession) {
+          monthlyDaysSet.add(entry.key); // Add date key to set (unique days)
+        }
+      }
+    });
+    monthlyDays.value = monthlyDaysSet.length;
 
-    // Total Time Worked (for selected month)
+    // Total Time Worked (for selected month) - sum all session durations
     Duration totalDuration = Duration.zero;
     all.entries.forEach((entry) {
       final d = DateTime.parse(entry.key);
-      if (d.year == selectedYear.value &&
-          d.month == selectedMonth.value &&
-          entry.value.duration != null) {
-        totalDuration += _parseDuration(entry.value.duration);
+      if (d.year == selectedYear.value && d.month == selectedMonth.value) {
+        // Sum durations of all completed sessions
+        for (final session in entry.value.sessions) {
+          if (session.duration != null && session.duration!.isNotEmpty) {
+            totalDuration += _parseDuration(session.duration);
+          }
+        }
       }
     });
     totalTimeWorked.value = _formatDuration(totalDuration);
+    
+    print('📊 [DashboardController] Summary updated:');
+    print('   - Weekly Days: ${weeklyDays.value}');
+    print('   - Monthly Days: ${monthlyDays.value}');
+    print('   - Total Time: ${totalTimeWorked.value}');
   }
 
   void showFilterDialog(BuildContext context) async {

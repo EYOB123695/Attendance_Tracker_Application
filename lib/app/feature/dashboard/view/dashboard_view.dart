@@ -4,12 +4,29 @@ import 'package:get/get.dart';
 import '../controller/dashboard_controller.dart';
 import 'package:intl/intl.dart';
 
-class DashboardView extends StatelessWidget {
+class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
 
   @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh summary when this tab becomes visible
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('📊 [DashboardView] Tab became visible, refreshing summary...');
+      Get.find<DashboardController>().updateSummary();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(DashboardController());
+    // Controller is already initialized in HomeView
+    // Use Get.find() to get existing instance, or create if doesn't exist
+    final controller = Get.find<DashboardController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
@@ -93,13 +110,16 @@ class DashboardView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Obx(() => Text(
-                            '${controller.weeklyDays.value} days',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
+                          Obx(() {
+                            print('🔄 [DashboardView] Obx() rebuilding Weekly Days: ${controller.weeklyDays.value}');
+                            return Text(
+                              '${controller.weeklyDays.value} days',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -140,13 +160,16 @@ class DashboardView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Obx(() => Text(
-                            '${controller.monthlyDays.value} days',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
+                          Obx(() {
+                            print('🔄 [DashboardView] Obx() rebuilding Monthly Days: ${controller.monthlyDays.value}');
+                            return Text(
+                              '${controller.monthlyDays.value} days',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -187,13 +210,16 @@ class DashboardView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Obx(() => Text(
-                            controller.totalTimeWorked.value,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
+                          Obx(() {
+                            print('🔄 [DashboardView] Obx() rebuilding Total Time: ${controller.totalTimeWorked.value}');
+                            return Text(
+                              controller.totalTimeWorked.value,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
